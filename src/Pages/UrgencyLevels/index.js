@@ -1,4 +1,13 @@
-import { Button, Space, Table, Typography, Upload, Progress, Spin } from "antd";
+import {
+  Button,
+  Space,
+  Table,
+  Typography,
+  Upload,
+  Progress,
+  Spin,
+  Modal,
+} from "antd";
 import { useState } from "react";
 import Papa from "papaparse";
 import { v4 as uuidv4 } from "uuid";
@@ -8,6 +17,8 @@ function UrgencyLevels() {
   const [dataSource, setDataSource] = useState([]);
   const [resetTable, setResetTable] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalData, setModalData] = useState({});
 
   const handleFileUpload = (file) => {
     setLoading(true);
@@ -154,6 +165,14 @@ function UrgencyLevels() {
             {
               title: "Urgency",
               dataIndex: "label",
+              filters: [
+                { text: "Extreme", value: "Extreme" },
+                { text: "High", value: "High" },
+                { text: "Medium", value: "Medium" },
+                { text: "Low", value: "Low" },
+                { text: "Not Determined", value: "Not Determined" },
+              ],
+              onFilter: (value, record) => record.label === value,
               render: (text) => <span>{text || "Not Determined"}</span>,
             },
             {
@@ -176,6 +195,54 @@ function UrgencyLevels() {
                   />
                 );
               },
+            },
+            {
+              title: "Action",
+              dataIndex: "action",
+              render: (_, record) => (
+                <Button
+                  className="view-button"
+                  type="primary"
+                  size="small"
+                  onClick={() => {
+                    Modal.info({
+                      title: "View Support Ticket",
+                      centered: true, // Display the modal in the center of the screen
+                      width: 600, // Increase the width of the modal
+                      content: (
+                        <div className="modal-content">
+                          <p className="modal-item">
+                            <strong>Customer:</strong> {record.customer}
+                          </p>
+                          <p className="modal-item">
+                            <strong>Message:</strong> {record.message}
+                          </p>
+                          <p className="modal-item">
+                            <strong>Urgency:</strong>{" "}
+                            {record.label || "Not Determined"}
+                          </p>
+                          <p className="modal-item">
+                            <strong>Level:</strong>{" "}
+                            {record.sentiment ? (
+                              <Progress
+                                percent={parseFloat(
+                                  record.sentiment.replace("%", "")
+                                )}
+                                strokeColor={determineColor(record.label)}
+                                format={(percent) => `${percent}%`}
+                              />
+                            ) : (
+                              "Not Calculated"
+                            )}
+                          </p>
+                        </div>
+                      ),
+                    });
+                  }}
+                >
+                  View
+                </Button>
+              ),
             },
           ]}
           dataSource={dataSource}
