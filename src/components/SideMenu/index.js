@@ -50,7 +50,7 @@ function SideMenu() {
             key: "/UrgencyLevels",
           },
           {
-            label: "Customers",
+            label: "Categories",
             icon: <CodeOutlined />,
             key: "/Customers",
           },
