@@ -15,37 +15,46 @@ import { Bar } from "react-chartjs-2";
 
 function SupportTickets() {
   const [loading, setLoading] = useState(false);
-  const [dataSource, setDataSource] = useState([]);
+  const [dataSource, setDataSource] = useState(() => {
+    const data = JSON.parse(localStorage.getItem('supportTicketsData'));
+    if (data) {
+      return data;
+    }
+    return [];
+  });
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([]);
   const [resetButtonVisible, setResetButtonVisible] = useState(false);
 
 
   useEffect(() => {
-    setLoading(true);
-    getDataTickets()
-      .then((res) => {
-        const formattedData = res.map((ticket) => {
-          return {
-            key: ticket.Identity,
-            identity: ticket.Identity,
-            company: ticket.Company,
-            message: ticket.Message,
-            label: ticket.Label,
-            sentiment: ticket.Sentiment,
-            Urgency: "Not Determined",
-            Percentage: "0%",
-            toggle: false // set the toggle property here
-          };
+    if (!dataSource.length) {
+      setLoading(true);
+      getDataTickets()
+        .then((res) => {
+          const formattedData = res.map((ticket) => {
+            return {
+              key: ticket.Identity,
+              identity: ticket.Identity,
+              company: ticket.Company,
+              message: ticket.Message,
+              label: ticket.Label,
+              sentiment: ticket.Sentiment,
+              Urgency: "Not Determined",
+              Percentage: "0%",
+              toggle: false // set the toggle property here
+            };
+          });
+          setDataSource(formattedData);
+          setData(formattedData); // set the data here
+          setLoading(false);
+          localStorage.setItem('supportTicketsData', JSON.stringify(formattedData));
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
         });
-        setDataSource(formattedData);
-        setData(formattedData); // set the data here
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-      });
+    }
   }, []);
 
   const handleToggle = (checked, record) => {
@@ -94,6 +103,7 @@ function SupportTickets() {
         });
         setDataSource([...updatedDataSource]);
         setResetButtonVisible(true);
+        localStorage.setItem('supportTicketsData', JSON.stringify(updatedDataSource));
       })
       .catch((error) => {
         setLoading(false);
