@@ -40,7 +40,7 @@ function SideMenu() {
             key: "/Dashboard",
           },
           {
-            label: "Support Tickets",
+            label: "Support Backlog",
             icon: <WechatOutlined />,
             key: "/SupportTickets",
           },

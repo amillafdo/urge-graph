@@ -18,6 +18,10 @@ export const getCustomers = () => {
   return fetch('http://127.0.0.1:5000/data').then((res) => res.json());
 }
 
+export const getDataTickets = () => {
+  return fetch('http://127.0.0.1:5000/data').then((res) => res.json());
+}
+
 export const getComments = () => {
     return fetch('https://dummyjson.com/comments').then((res) => res.json());
 }
