@@ -1,16 +1,4 @@
-import {
-  Avatar,
-  Button,
-  Form,
-  Input,
-  Modal,
-  Rate,
-  Space,
-  Table,
-  Typography,
-  Progress,
-  Select,
-} from "antd";
+import { Button, Form, Input, Modal, Space, Table, Typography, Progress, Select } from "antd";
 // import "~antd/dist/antd.css";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -158,7 +146,7 @@ function Customers() {
 
   return (
     <Space size={20} direction="vertical">
-      <Typography.Title level={4}> Support Ticket </Typography.Title>
+      <Typography.Title level={4}> Insert Support Tickets </Typography.Title>
       <Space>
         <Button type="default" onClick={handleAddClick}>
           Add Support Request

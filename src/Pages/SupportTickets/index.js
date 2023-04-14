@@ -1,17 +1,10 @@
-import {
-  Button,
-  Space,
-  Table,
-  Typography,
-  message,
-  Progress,
-  Modal,
-  Switch
-} from "antd";
+import { Button, Space, Table, Typography, message, Progress, Modal, Switch, Spin, Badge, Tag } from "antd";
 import { getDataTickets } from "../../API";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Bar } from "react-chartjs-2";
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 function SupportTickets() {
   const [loading, setLoading] = useState(false);
@@ -54,8 +47,18 @@ function SupportTickets() {
           console.log(err);
           setLoading(false);
         });
+    } else {
+      // check if there are any rows with urgency already determined
+      const anyUrgencyDetermined = dataSource.some((item) => item.Urgency !== "Not Determined" && item.Urgency !== "Unknown");
+      const anyPercentageDetermined = dataSource.some((item) => item.Percentage !== "0%");
+      if (selectedRowKeys.length > 0 && anyUrgencyDetermined && anyPercentageDetermined) {
+        setResetButtonVisible(true);
+      } else {
+        setResetButtonVisible(false);
+      }
     }
-  }, []);
+  }, [dataSource, selectedRowKeys]);
+  
 
   const handleToggle = (checked, record) => {
     const newData = [...dataSource];
@@ -166,6 +169,38 @@ function SupportTickets() {
     {
       title: "Urgency",
       dataIndex: "Urgency",
+      filters: [
+        { text: "Low", value: "Low" },
+        { text: "Medium", value: "Medium" },
+        { text: "High", value: "High" },
+        { text: "Extreme", value: "Extreme" },
+      ],
+      onFilter: (value, record) => record.Urgency === value,
+      sorter: (a, b) => {
+        const order = ["Extreme", "High", "Medium", "Low"];
+        return order.indexOf(a.Urgency) - order.indexOf(b.Urgency);
+      },
+      render: (text) => {
+        let color;
+        switch (text) {
+          case "Low":
+            color = "green";
+            break;
+          case "Medium":
+            color = "blue";
+            break;
+          case "High":
+            color = "orange";
+            break;
+          case "Extreme":
+            color = "red";
+            break;
+          default:
+            color = "gray";
+            break;
+        }
+        return <Tag color={color}>{text}</Tag>;
+      },
     },
     {
       title: "Percentage",
@@ -368,11 +403,9 @@ function SupportTickets() {
   };
 
   const handleResetValues = () => {
-    const selectedRows = dataSource.filter((item) =>
-      selectedRowKeys.includes(item.key)
-    );
+    const selectedKeys = selectedRowKeys.map((key) => key.toString());
     const updatedDataSource = dataSource.map((item) => {
-      if (selectedRows.includes(item)) {
+      if (selectedKeys.includes(item.key.toString())) {
         return {
           ...item,
           Urgency: "Not Determined",
@@ -385,34 +418,32 @@ function SupportTickets() {
     setResetButtonVisible(false);
   };
   
-  
-
   return (
     <Space size={20} direction="vertical">
-      <Typography.Title level={4}>Support Backlog</Typography.Title>
-      <Space>
-        <Button onClick={handleSelectAll}>{selectButtonName}</Button>
-        <Button
-          onClick={handleDetermineUrgency}
-          disabled={selectedRowKeys.length === 0 || loading}
-          loading={loading}
-        >
-          Determine Urgency
-        </Button>
-        <Button onClick={handleResetValues} disabled={!resetButtonVisible}>
-          Reset Calculation
-        </Button>
-        {dataSource.some((item) => item.Urgency !== "Not Determined") && (
-          <Button onClick={handleViewSummary}>View Summary</Button>
-        )}
-        {selectedRowKeys.length > 0 && (
-          <Button onClick={handleCategorizationSummary}>
-            Categorization Summary
-          </Button>
-        )}
-      </Space>
-      <Table
+    <Typography.Title level={4}>Support Backlog</Typography.Title>
+    <Space>
+      <Button onClick={handleSelectAll}>{selectButtonName}</Button>
+      <Button
+        onClick={handleDetermineUrgency}
+        disabled={selectedRowKeys.length === 0 || loading}
         loading={loading}
+      >
+        Determine Urgency
+      </Button>
+      <Button onClick={handleResetValues} disabled={!resetButtonVisible}>
+        Reset Calculation
+      </Button>
+      {dataSource.some((item) => item.Urgency !== "Not Determined") && (
+        <Button onClick={handleViewSummary}>View Summary</Button>
+      )}
+      {selectedRowKeys.length > 0 && (
+        <Button onClick={handleCategorizationSummary}>
+          Categorization Summary
+        </Button>
+      )}
+    </Space>
+    <Spin spinning={loading} tip="Determining urgency...">
+      <Table
         columns={columns}
         dataSource={dataSource}
         pagination={{
@@ -420,7 +451,8 @@ function SupportTickets() {
         }}
         rowSelection={rowSelection}
       ></Table>
-    </Space>
+    </Spin>
+  </Space>  
   );
 }
 

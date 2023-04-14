@@ -1,4 +1,4 @@
-import { Button, Space, Table, Typography, Upload, Progress, Spin, Modal, Checkbox } from "antd";
+import { Button, Space, Table, Typography, Upload, Progress, Spin, Modal, Tag  } from "antd";
 import { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
 import { v4 as uuidv4 } from "uuid";
@@ -165,9 +165,9 @@ function UrgencyLevels() {
       case "High":
         return "#faad14"; // yellow
       case "Medium":
-        return "#52c41a"; // green
+        return "#1890ff"; // green
       case "Low":
-        return "#1890ff"; // blue
+        return "#52c41a"; // blue #52c41a
       default:
         return "#000000"; // black
     }
@@ -227,17 +227,47 @@ function UrgencyLevels() {
               ),
             },
             {
-              title: "Urgency",
-              dataIndex: "label",
+              title: 'Urgency',
+              dataIndex: 'label',
               filters: [
-                { text: "Extreme", value: "Extreme" },
-                { text: "High", value: "High" },
-                { text: "Medium", value: "Medium" },
-                { text: "Low", value: "Low" },
-                { text: "Not Determined", value: "Not Determined" },
+                { text: 'Extreme', value: 'Extreme' },
+                { text: 'High', value: 'High' },
+                { text: 'Medium', value: 'Medium' },
+                { text: 'Low', value: 'Low' },
+                { text: 'Not Determined', value: 'Not Determined' },
               ],
               onFilter: (value, record) => record.label === value,
-              render: (text) => <span>{text || "Not Determined"}</span>,
+              render: (text) => {
+                let color = '';
+                switch (text) {
+                  case 'Extreme':
+                    color = 'red';
+                    break;
+                  case 'High':
+                    color = 'orange';
+                    break;
+                  case 'Medium':
+                    color = 'blue';
+                    break;
+                  case 'Low':
+                    color = 'green';
+                    break;
+                  default:
+                    color = 'gray';
+                    break;
+                }
+                return (
+                  <Tag color={color} key={text}>
+                    {text || 'Not Determined'}
+                  </Tag>
+                );
+              },
+              sorter: (a, b) => {
+                const order = ['Extreme', 'High', 'Medium', 'Low'];
+                const aIndex = order.indexOf(a.label);
+                const bIndex = order.indexOf(b.label);
+                return aIndex - bIndex;
+              },
             },
             {
               title: "Percentage",
@@ -254,6 +284,7 @@ function UrgencyLevels() {
                 return (
                   <Progress
                     percent={percent}
+                    steps={5}
                     strokeColor={color}
                     format={(percent) => `${percent}%`}
                   />
