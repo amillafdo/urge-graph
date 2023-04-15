@@ -205,9 +205,26 @@ function SupportTickets() {
     {
       title: "Percentage",
       dataIndex: "Percentage",
+      sorter: (a, b) => {
+        const order = ["Extreme", "High", "Medium", "Low", "Not Determined"];
+        const aOrder = order.indexOf(a.Urgency);
+        const bOrder = order.indexOf(b.Urgency);
+        if (aOrder !== bOrder) {
+          return aOrder - bOrder;
+        }
+        return parseFloat(b.Percentage) - parseFloat(a.Percentage);
+      },
+      filters: [
+        { text: "Extreme", value: "Extreme" },
+        { text: "High", value: "High" },
+        { text: "Medium", value: "Medium" },
+        { text: "Low", value: "Low" },
+        { text: "Not Determined", value: "Not Determined" },
+      ],
+      onFilter: (value, record) => record.Urgency === value,
       render: (value, record) => {
         const percent = parseFloat(value);
-        let strokeColor = "ash"; // default green color
+        let strokeColor = "ash"; // default ash color
         if (record.Urgency === "Low") {
           strokeColor = "green"; // green color
         } else if (record.Urgency === "Medium") {
@@ -216,6 +233,8 @@ function SupportTickets() {
           strokeColor = "orange"; // orange color
         } else if (record.Urgency === "Extreme") {
           strokeColor = "red"; // red color
+        } else if (record.Urgency === "Not Determined") {
+          strokeColor = "ash"; // set to ash color
         }
         return (
           <Progress
@@ -223,13 +242,15 @@ function SupportTickets() {
             percent={percent}
             width={50}
             strokeColor={strokeColor}
-            format={() => (
-              <span style={{ color: strokeColor }}>{`${percent}%`}</span>
+            format={(percent) => (
+              <div style={{ color: strokeColor }}>
+                {percent}%
+              </div>
             )}
           />
         );
-      },          
-    },
+      },
+    },    
     {
       title: "Action",
       dataIndex: "action",

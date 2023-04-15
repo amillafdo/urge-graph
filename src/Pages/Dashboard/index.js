@@ -82,6 +82,7 @@ function RecentOrders() {
       setData(dataSource);
     }
   }, [dataSource]);
+  
 
   const columns = [
     { title: "Customer", dataIndex: "company" },
@@ -94,9 +95,7 @@ function RecentOrders() {
       title: "Created",
       dataIndex: "date",
       render: (text) => (
-        <span className="date-text">
-          {moment(text).fromNow()}
-        </span>
+        <span className="date-text">{moment(text).fromNow()}</span>
       ),
       sorter: (a, b) => moment(b.date) - moment(a.date),
       defaultSortOrder: "ascend",
@@ -134,12 +133,30 @@ function RecentOrders() {
             color = "gray";
             break;
         }
-        return <Tag color={color} style={{ fontSize: "14px" }}>{text}</Tag>;
+        return (
+          <Tag color={color} style={{ fontSize: "14px" }}>
+            {text}
+          </Tag>
+        );
       },
     },
     {
       title: "Percentage",
       dataIndex: "Percentage",
+      sorter: (a, b) => {
+        const urgencyOrder = ["Extreme", "High", "Medium", "Low"];
+        const aUrgencyIndex = urgencyOrder.indexOf(a.Urgency);
+        const bUrgencyIndex = urgencyOrder.indexOf(b.Urgency);
+        if (aUrgencyIndex < bUrgencyIndex) {
+          return -1;
+        }
+        if (aUrgencyIndex > bUrgencyIndex) {
+          return 1;
+        }
+        if (aUrgencyIndex === bUrgencyIndex) {
+          return parseFloat(b.Percentage) - parseFloat(a.Percentage);
+        }
+      },
       render: (value, record) => {
         const percent = parseFloat(value);
         let strokeColor = "ash"; // default ash color
@@ -161,14 +178,98 @@ function RecentOrders() {
             width={50}
             strokeColor={strokeColor}
             format={(percent) => (
-              <div style={{ color: strokeColor }}>
-                {percent}% 
-              </div>
+              <div style={{ color: strokeColor }}>{percent}%</div>
             )}
           />
         );
       },
-    }         
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      render: (_, record) => (
+        <Button
+          type="default"
+          size="medium"
+          onClick={() => {
+            Modal.info({
+              title: "View Support Ticket",
+              centered: true,
+              width: 600,
+              content: (
+                <div className="modal-content">
+                  <Table
+                    dataSource={[
+                      {
+                        key: "1",
+                        label: "Customer",
+                        value: record.company,
+                      },
+                      {
+                        key: "2",
+                        label: "Message",
+                        value: record.message,
+                      },
+                      {
+                        key: "3",
+                        label: "Urgency",
+                        value: record.Urgency || "Not Determined",
+                      },
+                      {
+                        key: "4",
+                        label: "Level",
+                        value: record.Urgency ? (
+                          <Progress
+                            type="circle"
+                            percent={parseFloat(
+                              record.Percentage.toString().replace("%", "")
+                            )}
+                            width={100}
+                            format={(percent) => `${percent}%`}
+                            strokeColor={
+                              record.Urgency === "Extreme"
+                                ? "red"
+                                : record.Urgency === "High"
+                                ? "orange"
+                                : record.Urgency === "Medium"
+                                ? "blue"
+                                : record.Urgency === "Low"
+                                ? "green"
+                                : record.Urgency === "Not Determined"
+                                ? "ash"
+                                : "gray"
+                            }
+                          />
+                        ) : (
+                          "Not Calculated"
+                        ),
+                      },
+                    ]}
+                    columns={[
+                      {
+                        title: "Label",
+                        dataIndex: "label",
+                        key: "label",
+                      },
+                      {
+                        title: "Value",
+                        dataIndex: "value",
+                        key: "value",
+                      },
+                    ]}
+                    showHeader={false}
+                    pagination={false}
+                    bordered={false}
+                  />
+                </div>
+              ),
+            });
+          }}
+        >
+          View
+        </Button>
+      ),
+    },
   ];
   
 
@@ -414,7 +515,7 @@ function RecentOrders() {
     setDataSource(defaultData);
     setData(defaultData);
   };
-
+  
   return (
     <>
       <Typography.Title level={4}>Recent Support Requests</Typography.Title>
