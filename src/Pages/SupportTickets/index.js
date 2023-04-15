@@ -211,7 +211,7 @@ function SupportTickets() {
         if (record.Urgency === "Low") {
           strokeColor = "green"; // green color
         } else if (record.Urgency === "Medium") {
-          strokeColor = "blue"; // yellow color
+          strokeColor = "blue"; // blue color
         } else if (record.Urgency === "High") {
           strokeColor = "orange"; // orange color
         } else if (record.Urgency === "Extreme") {
@@ -223,9 +223,12 @@ function SupportTickets() {
             percent={percent}
             width={50}
             strokeColor={strokeColor}
+            format={() => (
+              <span style={{ color: strokeColor }}>{`${percent}%`}</span>
+            )}
           />
         );
-      },
+      },          
     },
     {
       title: "Action",
@@ -447,7 +450,7 @@ function SupportTickets() {
         columns={columns}
         dataSource={dataSource}
         pagination={{
-          pageSize: 10,
+          pageSize: 6,
         }}
         rowSelection={rowSelection}
       ></Table>

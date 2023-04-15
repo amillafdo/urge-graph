@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.6.0",
+    "@ant-design/plots": "^1.2.5",
+    "@antv/g2plot": "^2.4.29",
     "@reduxjs/toolkit": "^1.9.3",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -16,6 +18,7 @@
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
+    "react-liquid-gauge": "^1.2.4",
     "react-router-dom": "^6.10.0",
     "react-scripts": "5.0.1",
     "redux": "^4.2.1",

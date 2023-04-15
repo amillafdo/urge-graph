@@ -277,7 +277,7 @@ function UrgencyLevels() {
                   return <span>Not Calculated</span>;
                 }
 
-                const percent = parseFloat(text.replace("%", ""));
+                const percent = parseFloat(String(text).replace("%", ""));
                 const label = record.label;
                 const color = determineColor(label);
 
@@ -342,7 +342,7 @@ function UrgencyLevels() {
           ]}
           dataSource={dataSource}
           pagination={{
-            pageSize: 10,
+            pageSize: 8,
             preserveSelectedRowKeys: true, // add this prop
           }}
         />
