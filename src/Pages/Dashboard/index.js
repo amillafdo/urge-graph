@@ -13,10 +13,10 @@ function Dashboard() {
     <Space size={20} direction="vertical">
       <Typography.Title level={4}> Dashboard </Typography.Title>
       <Space direction="horizontal">
-        <DashboardCard title={<span><AntCloudOutlined /> Support Tickets</span>} value={719} width={235} />
-        <DashboardCard title={<span><RetweetOutlined /> Categories</span>} value={4} width={235} />
-        <DashboardCard title={<span><AreaChartOutlined /> Levels</span>}value={5} width={235} />
-        <DashboardCard title={<span><TeamOutlined /> Customers</span>} value={121} width={235} />
+        <DashboardCard title={<span><AntCloudOutlined /> Support Tickets</span>} value={719} width={385} />
+        <DashboardCard title={<span><RetweetOutlined /> Categories</span>} value={4} width={385} />
+        <DashboardCard title={<span><AreaChartOutlined /> Levels</span>}value={5} width={385} />
+        <DashboardCard title={<span><TeamOutlined /> Customers</span>} value={121} width={385} />
       </Space>
       <Space>
       <RecentOrders />
@@ -89,7 +89,7 @@ function RecentOrders() {
     {
       title: "Message",
       dataIndex: "message",
-      render: (text) => (text.length > 60 ? text.slice(0, 60) + "..." : text),
+      render: (text) => (text.length > 60 ? text.slice(0, 150) + "..." : text),
     },
     {
       title: "Created",
@@ -528,21 +528,21 @@ function RecentOrders() {
         <Button
           type="default"
           size="medium"
-          style={{ marginTop: "10px", marginBottom: "20px", marginLeft: "50px" }}
+          style={{ marginTop: "10px", marginBottom: "20px", marginLeft: "70px" }}
           onClick={handleDetectUrgency}
         >
           Quick Categorization
         </Button>
       }
-      <Button style={{ marginLeft: "50px" }} onClick={handleViewSummary}>
+      <Button style={{ marginLeft: "70px" }} onClick={handleViewSummary}>
         Visualize Urgency Chart
       </Button>
 
-      <Button style={{ marginLeft: "50px" }} onClick={categorizeSummary}>
+      <Button style={{ marginLeft: "70px" }} onClick={categorizeSummary}>
         Categorization Summary
       </Button>
 
-      <Button style={{ marginLeft: "50px" }} onClick={handleResetCalculation}>
+      <Button style={{ marginLeft: "70px" }} onClick={handleResetCalculation}>
         Reset Calculation
       </Button>
 

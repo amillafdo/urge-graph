@@ -1,4 +1,4 @@
-import { Button, Form, Input, Modal, Space, Table, Typography, Progress, Select } from "antd";
+import { Button, Form, Input, Modal, Space, Table, Typography, Progress, Select, Tag } from "antd";
 // import "~antd/dist/antd.css";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -139,7 +139,7 @@ function Customers() {
 
   const urgencyColorMap = {
     Extreme: "red",
-    High: "yellow",
+    High: "orange",
     Medium: "blue",
     Low: "green",
   };
@@ -172,23 +172,31 @@ function Customers() {
           {
             title: "Message",
             dataIndex: "Message",
-            render: (text) => <span>{text ? text.substr(0, 100) : ""}...</span>,
+            render: (text) => <span>{text ? text.substr(0, 150) : ""}...</span>,
           },
           {
             title: "Urgency",
             dataIndex: "Urgency",
+            render: (text) => <Tag color={urgencyColorMap[text]}>{text}</Tag>,
           },
           {
             title: "Percentage",
-            render: (text, record) => (
-              <Progress
-                type="circle"
-                percent={parseFloat(record.Percentage)}
-                format={() => `${record.Percentage}`}
-                width={50}
-                strokeColor={urgencyColorMap[record.Urgency]}
-              />
-            ),
+            render: (text, record) => {
+              const urgencyColor = urgencyColorMap[record.Urgency];
+              const percent = parseFloat(record.Percentage);
+              const formatPercent = (p) => (
+                <span style={{ color: urgencyColor }}>{`${p}%`}</span>
+              );
+              return (
+                <Progress
+                  type="circle"
+                  percent={percent}
+                  format={formatPercent}
+                  width={50}
+                  strokeColor={urgencyColor}
+                />
+              );
+            },
           },
           {
             title: "Action",
@@ -196,25 +204,23 @@ function Customers() {
             render: (text, record) => (
               <Space>
                 <Button
-                  className="view-button"
-                  type="primary"
-                  size="small"
+                  type="default"
+                  size="medium"
                   onClick={() => handleViewDetails(record)}
                 >
                   View
                 </Button>
                 <Button
-                  className="view-button"
-                  type="primary"
-                  size="small"
+                  // className="view-button"
+                  type="default"
+                  size="medium"
                   onClick={() => handleEdit(record)}
                 >
                   Edit
                 </Button>
                 <Button
-                  className="view-button"
-                  type="primary"
-                  size="small"
+                  type="default"
+                  size="medium"
                   onClick={() => handleDelete(record.key)}
                 >
                   Delete
@@ -247,23 +253,27 @@ function Customers() {
             label="Customer"
             rules={[{ required: true, message: "Please enter customer name" }]}
           >
-            <Input disabled={modalType === "view"} />
+            <Input readOnly={modalType === "view"} />
           </Form.Item>
           <Form.Item
             name="Message"
             label="Message"
             rules={[{ required: true, message: "Please enter message" }]}
           >
-            <Input.TextArea disabled={modalType === "view"} rows={4} />
+            <Input.TextArea readOnly={modalType === "view"} rows={8} />
           </Form.Item>
           <Form.Item name="Urgency" label="Urgency">
-            <Select defaultValue="Not Determined" disabled>
+            <Select defaultValue="Not Determined" readOnly optionFilterProp="">
               <Option value="low">Low</Option>
               <Option value="medium">Medium</Option>
               <Option value="high">High</Option>
             </Select>
           </Form.Item>
-          <Form.Item name="Percentage" label="Percentage" initialValues={{ Percentage: 0 }}>
+          <Form.Item
+            name="Percentage"
+            label="Percentage"
+            initialValues={{ Percentage: 0 }}
+          >
             <div style={{ display: "flex", alignItems: "center" }}>
               <Progress
                 type="circle"
