@@ -311,7 +311,7 @@ function UrgencyLevels() {
         </Button>
       )}
       </Space>
-      <Spin spinning={loading}>
+      <Spin spinning={loading} tip="Determining urgency...">
         <Table
           rowKey="key" // set rowKey to unique key property
           key={resetTable ? "reset" : "table"}

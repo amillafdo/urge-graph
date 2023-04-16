@@ -3,8 +3,8 @@ import { useEffect, useState, useRef  } from "react";
 import { Doughnut } from 'react-chartjs-2';
 import { AntCloudOutlined, RetweetOutlined, AreaChartOutlined, TeamOutlined } from "@ant-design/icons";
 import { v4 as uuidv4 } from "uuid";
-import LiquidGauge from "react-liquid-gauge";
-import { Gauge } from "@ant-design/plots";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import moment from "moment";
 import { getTicketDates } from "../../API";
 
@@ -532,6 +532,29 @@ function RecentOrders() {
     setDataSource(defaultData);
     setData(defaultData);
   };
+
+  const handleDownloadStatistics = () => {
+    // Define the headers and rows to be included in the CSV file
+    const headers = ['Customer', 'Message', 'Created', 'Urgency', 'Percentage'];
+    const rows = dataSource.map((data) => {
+      const { company, message, date, Urgency, Percentage } = data;
+      return [company, message, moment(date).format('MM/DD/YYYY h:mm a'), Urgency, Percentage];
+    });
+  
+    // Create a CSV file
+    let csvContent = `data:text/csv;charset=utf-8,${headers.join(',')}\n`;
+    rows.forEach((row) => {
+      csvContent += `${row.join(',')}\n`;
+    });
+  
+    // Download the CSV file
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'statistics.csv');
+    document.body.appendChild(link);
+    link.click();
+  };
   
   return (
     <>
@@ -565,6 +588,11 @@ function RecentOrders() {
 
       <Button style={{ marginLeft: "10px" }} onClick={handleResetCalculation}>
         Reset Calculation
+      </Button>
+
+      <Button style={{ marginLeft: "10px" }} onClick={handleDownloadStatistics}>
+        <FontAwesomeIcon icon={faDownload} style={{ marginRight: "5px" }} />
+        Download Statistics
       </Button>
 
       <Spin spinning={loading} tip="Determining urgency...">
