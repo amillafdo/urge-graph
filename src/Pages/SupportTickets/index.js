@@ -184,19 +184,19 @@ function SupportTickets() {
         let color;
         switch (text) {
           case "Low":
-            color = "green";
+            color = "#52c41a";
             break;
           case "Medium":
-            color = "blue";
+            color = "#1890ff";
             break;
           case "High":
-            color = "orange";
+            color = "#faad14";
             break;
           case "Extreme":
-            color = "red";
+            color = "#f5222d";
             break;
           default:
-            color = "gray";
+            color = "#000000";
             break;
         }
         return <Tag color={color}>{text}</Tag>;
@@ -224,17 +224,17 @@ function SupportTickets() {
       onFilter: (value, record) => record.Urgency === value,
       render: (value, record) => {
         const percent = parseFloat(value);
-        let strokeColor = "ash"; // default ash color
+        let strokeColor = "#000000"; // default ash color
         if (record.Urgency === "Low") {
-          strokeColor = "green"; // green color
+          strokeColor = "#52c41a"; // green color
         } else if (record.Urgency === "Medium") {
-          strokeColor = "blue"; // blue color
+          strokeColor = "#1890ff"; // blue color
         } else if (record.Urgency === "High") {
-          strokeColor = "orange"; // orange color
+          strokeColor = "#faad14"; // orange color
         } else if (record.Urgency === "Extreme") {
-          strokeColor = "red"; // red color
+          strokeColor = "#f5222d"; // red color
         } else if (record.Urgency === "Not Determined") {
-          strokeColor = "ash"; // set to ash color
+          strokeColor = "#000000"; // set to ash color
         }
         return (
           <Progress

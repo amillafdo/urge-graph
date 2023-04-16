@@ -138,10 +138,10 @@ function Customers() {
   };
 
   const urgencyColorMap = {
-    Extreme: "red",
-    High: "orange",
-    Medium: "blue",
-    Low: "green",
+    Extreme: "#f5222d",
+    High: "#faad14",
+    Medium: "#1890ff",
+    Low: "#52c41a",
   };
 
   return (

@@ -1,4 +1,4 @@
-import { Typography, Space, Card, Statistic, Table, Button, Modal, Tag, Progress } from "antd";
+import { Typography, Space, Card, Statistic, Table, Button, Modal, Tag, Progress, Spin } from "antd";
 import { useEffect, useState, useRef  } from "react";
 import { Doughnut } from 'react-chartjs-2';
 import { AntCloudOutlined, RetweetOutlined, AreaChartOutlined, TeamOutlined } from "@ant-design/icons";
@@ -118,23 +118,23 @@ function RecentOrders() {
         let color;
         switch (text) {
           case "Low":
-            color = "green";
+            color = "#52c41a";
             break;
           case "Medium":
-            color = "blue";
+            color = "#1890ff";
             break;
           case "High":
-            color = "orange";
+            color = "#faad14";
             break;
           case "Extreme":
-            color = "red";
+            color = "#f5222d";
             break;
           default:
-            color = "gray";
+            color = "#000000";
             break;
         }
         return (
-          <Tag color={color} style={{ fontSize: "14px" }}>
+          <Tag color={color} style={{ fontSize: "12px" }}>
             {text}
           </Tag>
         );
@@ -159,17 +159,17 @@ function RecentOrders() {
       },
       render: (value, record) => {
         const percent = parseFloat(value);
-        let strokeColor = "ash"; // default ash color
+        let strokeColor = "#000000"; // default ash color
         if (record.Urgency === "Low") {
-          strokeColor = "green"; // green color
+          strokeColor = "#52c41a"; // green color
         } else if (record.Urgency === "Medium") {
-          strokeColor = "blue"; // blue color
+          strokeColor = "#1890ff"; // blue color
         } else if (record.Urgency === "High") {
-          strokeColor = "orange"; // orange color
+          strokeColor = "#faad14"; // orange color
         } else if (record.Urgency === "Extreme") {
-          strokeColor = "red"; // red color
+          strokeColor = "#f5222d"; // red color
         } else if (record.Urgency === "Not Determined") {
-          strokeColor = "ash"; // set to ash color
+          strokeColor = "#000000"; // set to ash color
         }
         return (
           <Progress
@@ -340,36 +340,53 @@ function RecentOrders() {
     ).length;
     const low = updatedRecords.filter((record) => record.Urgency === "Low").length;
   
-    const chartData = [
-      { label: "Extreme", value: extreme },
-      { label: "High", value: high },
-      { label: "Medium", value: medium },
-      { label: "Low", value: low },
+    const tableData = [
+      { category: "Extreme", count: extreme },
+      { category: "High", count: high },
+      { category: "Medium", count: medium },
+      { category: "Low", count: low },
     ];
   
-    const summary = `Total Sent: ${totalSent}\nExtreme: ${extreme}\nHigh: ${high}\nMedium: ${medium}\nLow: ${low}`;
+    const columns = [
+      {
+        title: "Category",
+        dataIndex: "category",
+      },
+      {
+        title: "Count",
+        dataIndex: "count",
+      },
+    ];
+  
+    const summary = `Total Sent: ${totalSent}`;
   
     Modal.info({
       title: "Summary of Updated Records",
       content: (
         <>
+          <Table
+            columns={columns}
+            dataSource={tableData}
+            pagination={false}
+            style={{ marginBottom: "20px" }}
+          />
           <Doughnut
             data={{
-              labels: chartData.map((dataPoint) => dataPoint.label),
+              labels: tableData.map((dataPoint) => dataPoint.category),
               datasets: [
                 {
-                  data: chartData.map((dataPoint) => dataPoint.value),
+                  data: tableData.map((dataPoint) => dataPoint.count),
                   backgroundColor: [
-                    "rgba(255, 0, 0, 0.8)", // red for "Extreme"
-                    "rgba(255, 165, 0, 0.8)", // orange for "High"
-                    "rgba(0, 0, 255, 0.8)", // blue for "Medium"
-                    "rgba(0, 128, 0, 0.8)", // green for "Low"
+                    "#f5222d", // red for "Extreme"
+                    "#faad14", // orange for "High"
+                    "#1890ff", // blue for "Medium"
+                    "#52c41a", // green for "Low"
                   ],
                 },
               ],
             }}
           />
-          <pre>{summary}</pre>
+          <p>{summary}</p>
         </>
       ),
       onOk() {},
@@ -528,34 +545,39 @@ function RecentOrders() {
         <Button
           type="default"
           size="medium"
-          style={{ marginTop: "10px", marginBottom: "20px", marginLeft: "70px" }}
+          style={{
+            marginTop: "10px",
+            marginBottom: "20px",
+            marginLeft: "10px",
+          }}
           onClick={handleDetectUrgency}
         >
           Quick Categorization
         </Button>
       }
-      <Button style={{ marginLeft: "70px" }} onClick={handleViewSummary}>
+      <Button style={{ marginLeft: "10px" }} onClick={handleViewSummary}>
         Visualize Urgency Chart
       </Button>
 
-      <Button style={{ marginLeft: "70px" }} onClick={categorizeSummary}>
+      <Button style={{ marginLeft: "10px" }} onClick={categorizeSummary}>
         Categorization Summary
       </Button>
 
-      <Button style={{ marginLeft: "70px" }} onClick={handleResetCalculation}>
+      <Button style={{ marginLeft: "10px" }} onClick={handleResetCalculation}>
         Reset Calculation
       </Button>
 
-      <Table
-        columns={columns}
-        loading={loading}
-        dataSource={dataSource}
-        pagination={{
-          pageSize: 5,
-        }}
-        rowSelection={rowSelection}
-        rowKey="key"
-      />
+      <Spin spinning={loading} tip="Determining urgency...">
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          pagination={{
+            pageSize: 5,
+          }}
+          rowSelection={rowSelection}
+          rowKey="key"
+        />
+      </Spin>
     </>
   );
 }

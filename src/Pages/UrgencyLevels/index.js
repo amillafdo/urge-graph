@@ -2,7 +2,7 @@ import { Button, Space, Table, Typography, Upload, Progress, Spin, Modal, Tag  }
 import { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
 import { v4 as uuidv4 } from "uuid";
-import { Doughnut } from "react-chartjs-2";
+import { Bar } from 'react-chartjs-2';
 
 function UrgencyLevels() {
   const [loading, setLoading] = useState(false);
@@ -204,7 +204,9 @@ function UrgencyLevels() {
     const updatedRecords = dataSource.filter(
       (record) => record.label !== undefined
     );
-    const totalUpdated = selectedRows.filter((record) => record.label !== undefined).length; //fix this in dashboard as well
+    const totalUpdated = selectedRows.filter(
+      (record) => record.label !== undefined
+    ).length;
     const extremeUpdated = updatedRecords.filter(
       (record) => record.label === "Extreme"
     ).length;
@@ -218,26 +220,62 @@ function UrgencyLevels() {
       (record) => record.label === "Low"
     ).length;
 
+    const data = {
+      labels: ["Extreme", "High", "Medium", "Low"],
+      datasets: [
+        {
+          label: "Summary of Updated Records",
+          data: [extremeUpdated, highUpdated, mediumUpdated, lowUpdated],
+          backgroundColor: [
+            "#f5222d",
+            "#faad14",
+            "#1890ff",
+            "#52c41a",
+          ],
+          borderColor: [
+            "#f5222d",
+            "#faad14",
+            "#1890ff",
+            "#52c41a",
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+
+    const options = {
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+            },
+          },
+        ],
+      },
+    };
+
     Modal.info({
       title: "Summary of Updated Records",
+      width: 800, // adjust the width of the modal as desired
+      maxWidth: "90vw", // adjust the maximum width of the modal as desired
       content: (
         <div>
           <p>Total: {totalUpdated}</p>
-          <p>Extreme: {extremeUpdated}</p>
-          <p>High: {highUpdated}</p>
-          <p>Medium: {mediumUpdated}</p>
-          <p>Low: {lowUpdated}</p>
+          <Bar data={data} options={options} />
         </div>
       ),
       onOk() {
-        localStorage.setItem('tableUpdated', 'false');
-      setTableUpdated(false);
+        localStorage.setItem("tableUpdated", "false");
+        setTableUpdated(false);
       },
     });
   };
 
+  
+
   useEffect(() => {
-    localStorage.setItem('tableUpdated', tableUpdated.toString());
+    localStorage.setItem("tableUpdated", tableUpdated.toString());
   }, [tableUpdated]);
   
 
@@ -268,10 +306,10 @@ function UrgencyLevels() {
         )}
         {dataSource.length > 0 && bulkSelectButton}
         {dataSource.length > 0 && (
-          <Button onClick={handleViewSummary}>
-            {tableUpdated ? "View Updated Summary" : "View Summary"}
-          </Button>
-        )}
+        <Button onClick={handleViewSummary}>
+          {tableUpdated ? "View Updated Summary" : "View Summary"}
+        </Button>
+      )}
       </Space>
       <Spin spinning={loading}>
         <Table
@@ -316,19 +354,19 @@ function UrgencyLevels() {
                 let color = "";
                 switch (text) {
                   case "Extreme":
-                    color = "red";
+                    color = "#f5222d";
                     break;
                   case "High":
-                    color = "orange";
+                    color = "#faad14";
                     break;
                   case "Medium":
-                    color = "blue";
+                    color = "#1890ff";
                     break;
                   case "Low":
-                    color = "green";
+                    color = "#52c41a";
                     break;
                   default:
-                    color = "gray";
+                    color = "#000000";
                     break;
                 }
                 return (
@@ -347,15 +385,25 @@ function UrgencyLevels() {
             {
               title: "Percentage",
               dataIndex: "sentiment",
+              sorter: (a, b) => {
+                const urgencyOrder = ["Extreme", "High", "Medium", "Low", "Not Determined"];
+                const aUrgencyIndex = urgencyOrder.indexOf(a.label);
+                const bUrgencyIndex = urgencyOrder.indexOf(b.label);
+                if (aUrgencyIndex !== bUrgencyIndex) {
+                  return aUrgencyIndex - bUrgencyIndex;
+                } else {
+                  const aPercent = parseFloat(String(a.sentiment).replace("%", ""));
+                  const bPercent = parseFloat(String(b.sentiment).replace("%", ""));
+                  return bPercent - aPercent;
+                }
+              },
               render: (text, record) => {
                 if (!text) {
                   return <span>Not Calculated</span>;
                 }
-
                 const percent = parseFloat(String(text).replace("%", ""));
                 const label = record.label;
                 const color = determineColor(label);
-
                 return (
                   <Progress
                     type="circle"
@@ -369,6 +417,7 @@ function UrgencyLevels() {
                 );
               },
             },
+            ,
             {
               title: "Action",
               dataIndex: "action",
