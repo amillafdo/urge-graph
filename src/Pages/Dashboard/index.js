@@ -13,24 +13,52 @@ function Dashboard() {
     <Space size={20} direction="vertical">
       <Typography.Title level={4}> Dashboard </Typography.Title>
       <Space direction="horizontal">
-        <DashboardCard title={<span><AntCloudOutlined /> Support Tickets</span>} value={719} width={385} />
-        <DashboardCard title={<span><RetweetOutlined /> Categories</span>} value={4} width={385} />
-        <DashboardCard title={<span><AreaChartOutlined /> Levels</span>}value={5} width={385} />
-        <DashboardCard title={<span><TeamOutlined /> Customers</span>} value={121} width={385} />
+        <DashboardCard title={<span><AntCloudOutlined /> Support Tickets</span>} value={719} width={385} gradient={['#ff9a9e', '#fad0c4']} />
+        <DashboardCard title={<span><RetweetOutlined /> Categories</span>} value={4} width={385} gradient={['#a18cd1', '#fbc2eb']} />
+        {/* <DashboardCard title={<span><AreaChartOutlined /> Levels</span>} value={5} width={385} gradient={['#fbc2eb', '#a6c1ee']} /> */}
+        <DashboardCard title={<span><TeamOutlined /> Customers</span>} value={121} width={385} gradient={['#84fab0', '#8fd3f4']} />
       </Space>
       <Space>
-      <RecentOrders />
+        <RecentOrders />
       </Space>
     </Space>
   );
 }
 
-function DashboardCard({ title, value, width }) {
+function DashboardCard({ title, value, width, gradient }) {
+  const [hovered, setHovered] = useState(false);
+  const gradientStyle = {
+    background: hovered ? gradient[1] : gradient[0],
+    transition: 'background 0.5s ease',
+  };
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    let counter = 0;
+    const interval = setInterval(() => {
+      if (counter < value) {
+        setDisplayValue(counter);
+        counter += Math.ceil(value / 30);
+      } else {
+        setDisplayValue(value);
+        clearInterval(interval);
+      }
+    }, 30);
+    return () => clearInterval(interval);
+  }, [value]);
+
   return (
-    <Card style={{ width }}>
+    <Card
+      style={{ width }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <Space direction="horizontal">
-        <Statistic title={title} value={value} />
+        <Statistic title={title} value={displayValue} />
       </Space>
+      <div style={{ height: 5, background: 'linear-gradient(to right, #ffffff, transparent)' }} />
+      <div style={{ height: 5, background: 'linear-gradient(to right, #ffffff, transparent)' }} />
+      <div style={{ height: 5, ...gradientStyle }} />
     </Card>
   );
 }
@@ -82,7 +110,6 @@ function RecentOrders() {
       setData(dataSource);
     }
   }, [dataSource]);
-  
 
   const columns = [
     { title: "Customer", dataIndex: "company" },
@@ -363,36 +390,47 @@ function RecentOrders() {
     Modal.info({
       title: "Summary of Updated Records",
       content: (
-        <>
-          <Table
-            columns={columns}
-            dataSource={tableData}
-            pagination={false}
-            style={{ marginBottom: "20px" }}
-          />
-          <Doughnut
-            data={{
-              labels: tableData.map((dataPoint) => dataPoint.category),
-              datasets: [
-                {
-                  data: tableData.map((dataPoint) => dataPoint.count),
-                  backgroundColor: [
-                    "#f5222d", // red for "Extreme"
-                    "#faad14", // orange for "High"
-                    "#1890ff", // blue for "Medium"
-                    "#52c41a", // green for "Low"
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <div style={{ marginRight: "20px", flex: 1 }}>
+            <Table
+              columns={columns}
+              dataSource={tableData}
+              pagination={false}
+              style={{ marginBottom: "20px" }}
+            />
+            <p>{summary}</p>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ maxWidth: "100%", maxHeight: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <Doughnut
+                data={{
+                  labels: tableData.map((dataPoint) => dataPoint.category),
+                  datasets: [
+                    {
+                      data: tableData.map((dataPoint) => dataPoint.count),
+                      backgroundColor: [
+                        "#f5222d", // red for "Extreme"
+                        "#faad14", // orange for "High"
+                        "#1890ff", // blue for "Medium"
+                        "#52c41a", // green for "Low"
+                      ],
+                    },
                   ],
-                },
-              ],
-            }}
-          />
-          <p>{summary}</p>
-        </>
+                }}
+                options={{
+                  maintainAspectRatio: true,
+                }}
+              />
+            </div>
+          </div>
+        </div>
       ),
       onOk() {},
+      width: 600, // Adjust the width as needed
     });
   };
-
+  
+  
   const onSelectAll = (selected, selectedRows, changeRows) => {
     const allRowKeys = dataSource.map((item) => item.key);
     setSelectedRowKeys(selected ? allRowKeys : []);
@@ -420,10 +458,10 @@ function RecentOrders() {
     const low = updatedRecords.filter((record) => record.Urgency === "Low").length;
   
     const tagColors = {
-      "Extreme": "red",
-      "High": "orange",
-      "Medium": "blue",
-      "Low": "green"
+      "Extreme": "#f5222d",
+      "High": "#faad14",
+      "Medium": "#1890ff",
+      "Low": "#52c41a"
     };
   
     const summaryData = [
@@ -502,7 +540,7 @@ function RecentOrders() {
           pagination={false}
           footer={() => (
             <div style={{ paddingTop: "1rem" }}>
-              <Tag color="default" size="large">Total Support Tickets:</Tag> <Tag color="default" size="large">{totalSent}</Tag>
+              <Tag color="default" size="large">Total Support Tickets:</Tag> <Tag color="#000000" size="large">{totalSent}</Tag>
             </div>
           )}
         />

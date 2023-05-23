@@ -55,3 +55,8 @@
 /* .date-text {
   text-shadow: 1px 1px #ccc;
 } */
+
+::-webkit-scrollbar {
+  width: 0.5em;
+  background-color: transparent;
+}
